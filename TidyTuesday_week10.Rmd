@@ -1,0 +1,96 @@
+---
+title: "TT_week10b"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(extrafont)
+library(pracma)
+```
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load('2022-03-08')
+erasmus <- tuesdata$erasmus
+
+top_3_receiving<-erasmus %>%
+  mutate(filter=ifelse(receiving_country_code==sending_country_code,"within_country","abroad")) %>% 
+  filter(filter=="abroad") %>% 
+  group_by(receiving_country_code) %>% count() %>% arrange(-n) %>% head(3) %>% rename(participants_total=n) %>% 
+  arrange(receiving_country_code) %>% cbind(.,xend=c(5,10,22))
+
+erasmus_color<-c("FR"="#5dab9b","ES"="#ff9d4a","BE"="#d94334")
+
+ peak_participants<- erasmus %>% 
+  merge(.,top_3_receiving,by="receiving_country_code")%>% 
+  mutate(mobility_start_month_b=as.Date(paste0(mobility_start_month,"-01"))) %>% 
+  group_by(mobility_start_month,mobility_start_month_b,sending_country_code,xend,participants_total,receiving_country_code) %>% 
+  summarise(participants=sum(participants)) %>% 
+  arrange(mobility_start_month_b) %>% 
+  data.frame() %>% 
+  cbind(.,data.frame(x = seq(0, 20, len=nrow(.))) %>%  mutate(z=(0.9*( x*1i))) %>% mutate(fa=(abs(zeta(z)))^1/2)) %>% 
+  mutate(yend=case_when(xend==5~1.45,xend==10~-0.8,xend==22~-0.5)) %>% 
+    mutate(count=1:n()) %>% 
+  mutate(label=ifelse(count==1|count==1087,mobility_start_month,NA)) %>% 
+    group_by(receiving_country_code,mobility_start_month) %>% 
+    summarise(peak=sum(participants)) %>% 
+    arrange(receiving_country_code,-peak) %>% 
+    group_by(receiving_country_code) %>% 
+    mutate(count=1:n()) %>% 
+    filter(count==1) %>% select(!(count))
+
+#tt_w10<-
+  erasmus %>% 
+  merge(.,top_3_receiving,by="receiving_country_code")%>% 
+  mutate(mobility_start_month_b=as.Date(paste0(mobility_start_month,"-01"))) %>% 
+  group_by(mobility_start_month,mobility_start_month_b,sending_country_code,xend,participants_total,receiving_country_code) %>% 
+  summarise(participants=sum(participants)) %>% 
+  arrange(mobility_start_month_b) %>% 
+  data.frame() %>% 
+  cbind(.,data.frame(x = seq(0, 20, len=nrow(.))) %>%  
+  mutate(z=(0.9*( x*1i))) %>% 
+    mutate(fa=(abs(zeta(z)))^1/2)) %>% 
+  mutate(yend=case_when(xend==5~1.45,xend==10~-0.8,xend==22~-0.15)) %>% 
+    mutate(count=1:n()) %>% 
+  mutate(label=ifelse(count==1|count==1087,mobility_start_month,NA)) %>%
+    mutate(segment_x=ifelse(is.na(label),NA,x),segment_y=ifelse(is.na(label),NA,fa)) %>% 
+    merge(.,peak_participants,by=c("receiving_country_code","mobility_start_month"),all.x = TRUE) %>% 
+    group_by(peak) %>% mutate(count1=1:n()) %>% 
+    mutate(peak=ifelse(count1==1,peak,NA),x_unif=runif(n(), 0,0.5),fa_unif=runif(n(), 0,0.5)) %>% 
+    mutate(x=x+x_unif,fa=fa+fa_unif) %>% 
+  arrange(desc(receiving_country_code)) %>% 
+  ggplot()+
+  annotate("rect",xmin=-Inf,xmax=Inf,ymin=-Inf,ymax=Inf,fill="#544a48")+
+  geom_curve(aes(x=x,y=fa,xend=xend,yend=yend,color=receiving_country_code),alpha=0.2,curvature=0.1)+
+    geom_point(aes(x=x,y=fa,color=receiving_country_code,size=participants),alpha=0.75,width = 0.25,height = 0.25)+
+  geom_text(aes(x=x,y=fa+0.2,label=label),color="#e4c9c4",family="Montserrat")+
+  geom_text(aes(x=x,y=fa,label=peak,color=receiving_country_code),family="Montserrat",size=6)+
+  scale_size(range=c(2,12))+
+  theme_void()+
+  theme(legend.position = "none")+
+  scale_color_manual(values=erasmus_color)+  
+  annotate("point",x=5,y=1.45,size=13,color="#544a48",fill="#b7382c",shape=21)+
+  annotate("point",x=10,y=-0.8,size=11,color="#544a48",fill="#ec9145",shape=21)+
+  annotate("point",x=22,y=-0.15,size=21,color="#544a48",fill="#549b8c",shape=21)+
+  annotate("text",x=5,y=1.6,label="Belgium",color="#e4c9c4",family="Montserrat",size=5)+
+  annotate("text",x=10,y=-0.9,label="Spain",color="#e4c9c4",family="Montserrat",size=5)+
+  annotate("text",x=22,y=-0.33,label="France",color="#e4c9c4",family="Montserrat",size=5)+
+  geom_segment(aes(x=segment_x,y=segment_y+0.2,xend=segment_x,yend=segment_y+0.9),color="#c1aaa6")
+
+#ggsave("tt_10_b.svg",tt_w10,width = 12,height = 7)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
