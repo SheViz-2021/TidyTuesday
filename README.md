@@ -1,6 +1,5 @@
 # SheViz
-Explore | Plot | Discover ðŸ“Š Shared passion for data viz and data analysis
-Founders: Marianna Rosso & Ana Stojiljkovic
+Founders: Marianna Rosso & Ana Stojiljkovic\
 www.sheviz.org
 
 ## TidyTuesday
@@ -11,5 +10,6 @@ A timeline of the 3 most popular destinations of the Erasmus exchange program âœ
 
 ![alt text](https://github.com/SheViz-2021/TidyTuesday/blob/main/Week10.png)
 Each dot indicates how many participants chose each country as destination in a month. Size of dot indicates number of participants.
-Note: the shape of the time line is an arbitrary artistic choice
+Note: the shape of the time line is an arbitrary artistic choice\
+R-Markdown: https://github.com/SheViz-2021/TidyTuesday/blob/main/TidyTuesday_week10.Rmd
 
