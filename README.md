@@ -1,4 +1,9 @@
-# TidyTuesday
+# SheViz
+Explore | Plot | Discover 📊 Shared passion for data viz and data analysis
+Founders: Marianna Rosso & Ana Stojiljkovic
+www.sheviz.org
+
+## TidyTuesday
 Our contributions to "Tidy Tuesday" (https://github.com/rfordatascience/tidytuesday)
 
 ### Week 10 - Erasmus exchange program
