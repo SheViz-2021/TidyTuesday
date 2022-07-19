@@ -1,0 +1,71 @@
+---
+title: "Week_28_TT"
+output: html_document
+date: '2022-07-18'
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(dplyr)
+library(ggformula)
+library(tidytuesdayR)
+```
+
+
+```{r message=FALSE, warning=FALSE}
+tuesdata <- tidytuesdayR::tt_load('2022-07-12')
+flights <- tuesdata$flights
+```
+
+
+```{r message=FALSE, warning=FALSE,fig.height=5,fig.width=10}
+top_bottom_5_airports<-
+flights %>% 
+  group_by() %>% 
+  group_by(APT_ICAO) %>% 
+  summarize(n=sum(FLT_TOT_1)) %>% 
+  arrange(-n) %>% 
+  slice(1:5,324:329) %>% 
+  mutate(top_bottom=ifelse(n>mean(n),"top","bottom")) %>% 
+  select(APT_ICAO,top_bottom)
+```
+
+```{r message=FALSE, warning=FALSE,fig.height=5,fig.width=10}
+df_flight_legend<-merge(flights[,c(5:6)],top_bottom_5_airports,by="APT_ICAO") %>% 
+  filter(top_bottom=="top") %>% 
+  unique() %>% 
+  cbind(.,y=c(1100,1200,1250,1050,1150),date=(as.character("2022-06-15")),date_x=(as.character("2022-09-01"))) %>% 
+  data.frame(.)
+
+merge(flights,top_bottom_5_airports,by="APT_ICAO") %>% 
+  mutate(FLT_DATE=as.Date(FLT_DATE),ID=paste0(FLT_DATE,APT_ICAO)) %>% 
+  filter(top_bottom=="top"&FLT_DATE>"2020-01-01") %>% 
+  ggplot(aes(x=FLT_DATE,y=FLT_TOT_1))+
+  geom_point(aes(color=APT_ICAO),alpha=0.3)+
+ geom_smooth(color="#98b2ba",alpha=0.1,se=F)+
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = "#4a4a4a",colour = "#4a4a4a"),
+        #plot.background = element_rect(fill = "#4a4a4a"),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank(),
+        axis.title = element_blank(),
+        axis.text.y=element_text(color="#a3a3a3",family="Montserrat",angle=90,hjust=0.5),
+        axis.text.x=element_text(color="#a3a3a3",family="Montserrat",hjust=0.5),
+        axis.ticks = element_blank(),
+        panel.grid.major.y = element_line(color="#4e4e4e"),
+        plot.background = element_rect(fill = "#4a4a4a"))+
+  scale_y_continuous(breaks=c(500,1000))+
+  scale_x_date(position="top")+
+  geom_segment(aes(x=as.Date("2019-10-01"),xend=as.Date("2022-09-01"),y=-100,yend=-100),color="#a3a3a3",linetype=5,size=1.5)+
+  geom_point(aes(y=0,x=as.Date("2019-10-01")),color="#4a4a4a")+
+  geom_point(aes(y=0,x=as.Date("2022-09-15")),color="#4a4a4a")+
+  geom_point(inherit.aes = F,data=df_flight_legend,aes(x=as.Date(date),y=y,color=APT_ICAO))+
+  geom_text(inherit.aes = F,data=df_flight_legend,aes(x=as.Date(date),y=y,label=APT_NAME),hjust=0,family = "Times New Roman")+
+  scale_color_manual(values=c("EHAM"= "#98b2ba","EGLL"="#7696a0","LFPG"="#547c87","EDDF"="#31626f","LEMD"="#004957"))+
+  scale_fill_manual(values=c("EHAM"= "#98b2ba","EGLL"="#7696a0","LFPG"="#547c87","EDDF"="#31626f","LEMD"="#004957"))
+```
+
+```{r message=FALSE, warning=FALSE}
+ggsave("p_flights.svg",width=12,height=6)
+```
+
